@@ -11,6 +11,11 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  slug:{
+    type: String,
+    required: true,
+    unique: true
+  },
   coverImage: {
     public_id: { type: String, required: true },
     url: { type: String, required: true },
