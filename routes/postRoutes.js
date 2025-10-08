@@ -4,6 +4,18 @@ const Post = require('../models/postModel');
 const upload = require('../utils/multer');
 const cloudinary = require('../utils/cloudinary');
 
+const slugify = (text) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, '-')           // Replace spaces with -
+    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+    .replace(/^-+/, '')             // Trim - from start of text
+    .replace(/-+$/, '');            // Trim - from end of text
+};
+
+
 // CREATE a Post
 router.post('/', upload.single('coverImage'), async (req, res) => {
   try {
@@ -27,6 +39,7 @@ router.post('/', upload.single('coverImage'), async (req, res) => {
     const newPost = new Post({
       title: req.body.title,
       content: req.body.content,
+      slug: slugify(req.body.title),
       coverImage: {
         public_id: result.public_id,
         url: result.secure_url,
