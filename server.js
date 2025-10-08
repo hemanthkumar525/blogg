@@ -8,7 +8,7 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:5173',          // Your local React dev server
-  'https://smbjugaad.com/' // <-- Add your deployed frontend URL here later
+  'https://smbjugaad.com' // <-- Add your deployed frontend URL here later
 ];
 
 const corsOptions = {
