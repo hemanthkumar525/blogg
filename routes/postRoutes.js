@@ -63,6 +63,30 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Add this route before '/:slug' to avoid conflicts
+router.get('/published', async (req, res) => {
+  try {
+    const posts = await Post.find({ isPublished: true }).sort({ createdAt: -1 });
+    res.status(200).json(posts);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.patch('/:id/toggle', async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ msg: 'Post not found' });
+    
+    post.isPublished = !post.isPublished; // Flip the boolean
+    await post.save();
+    
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // READ a single Post
 router.get('/:id', async (req, res) => {
    try {
