@@ -20,6 +20,10 @@ const postSchema = new mongoose.Schema({
     public_id: { type: String, required: true },
     url: { type: String, required: true },
   },
+  isPublished: {
+      type: Boolean,
+      default: false
+  }
   // You can add more fields like author, slug, tags, etc.
 }, {
   timestamps: true, // Automatically adds createdAt and updatedAt fields
