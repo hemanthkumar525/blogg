@@ -121,15 +121,16 @@ router.delete('/:id', async (req, res) => {
 
     // Delete image from Cloudinary
     await cloudinary.uploader.destroy(post.coverImage.public_id);
-    
+
     // Delete post from DB
-    await post.remove();
-    
+    await Post.findByIdAndDelete(req.params.id);
+
     res.status(200).json({ msg: 'Post deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 module.exports = router;
