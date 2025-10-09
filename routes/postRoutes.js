@@ -17,38 +17,55 @@ const slugify = (text) => {
 
 
 // CREATE a Post
-router.post('/', upload.single('coverImage'), async (req, res) => {
+// CREATE a Post
+router.post('/', upload.fields([{ name: 'coverImage', maxCount: 1 }, { name: 'featureImage', maxCount: 1 }]), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ msg: 'No cover image uploaded' });
+    if (!req.files || !req.files.coverImage) {
+      return res.status(400).json({ msg: 'Cover image is required' });
     }
-    
-    // Upload image to Cloudinary
-    // We use a stream to upload the buffer
-    const result = await new Promise((resolve, reject) => {
+
+    // Upload Cover Image
+    const coverResult = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: "blog_covers" }, // Optional: organize uploads in a folder
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
+        { folder: "blog_covers" },
+        (error, result) => (error ? reject(error) : resolve(result))
       );
-      uploadStream.end(req.file.buffer);
+      uploadStream.end(req.files.coverImage[0].buffer);
     });
 
+    // Upload Feature Image (if provided)
+    let featureResult = null;
+    if (req.files.featureImage && req.files.featureImage.length > 0) {
+      featureResult = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: "blog_features" },
+          (error, result) => (error ? reject(error) : resolve(result))
+        );
+        uploadStream.end(req.files.featureImage[0].buffer);
+      });
+    }
+
+    // Create Post
     const newPost = new Post({
       title: req.body.title,
       content: req.body.content,
       slug: slugify(req.body.title),
       coverImage: {
-        public_id: result.public_id,
-        url: result.secure_url,
+        public_id: coverResult.public_id,
+        url: coverResult.secure_url,
       },
+      featureImage: featureResult
+        ? {
+            public_id: featureResult.public_id,
+            url: featureResult.secure_url,
+          }
+        : undefined,
     });
 
     const savedPost = await newPost.save();
     res.status(201).json(savedPost);
   } catch (err) {
+    console.error('Error creating post:', err);
     res.status(500).json({ error: err.message });
   }
 });
