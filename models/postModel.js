@@ -20,6 +20,10 @@ const postSchema = new mongoose.Schema({
     public_id: { type: String, required: true },
     url: { type: String, required: true },
   },
+  featureImage: {
+    public_id: { type: String },
+    url: { type: String },
+  },
   isPublished: {
       type: Boolean,
       default: false
